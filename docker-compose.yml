@@ -1,0 +1,14 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: workbnb-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: workbnb
+    volumes:
+      - workbnb_mongo_data:/data/db
+
+volumes:
+  workbnb_mongo_data:
