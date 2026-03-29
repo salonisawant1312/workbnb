@@ -8,7 +8,9 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 export default function HostDashboardPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading } = useSelector((s) => s.listings);
+  const { loading, error } = useSelector((s) => s.listings);
+  const authUser = useSelector((s) => s.auth.user);
+  const [submitMessage, setSubmitMessage] = useState('');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -33,6 +35,7 @@ export default function HostDashboardPage() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    setSubmitMessage('');
     const payload = {
       title: formData.title,
       description: formData.description,
@@ -47,8 +50,25 @@ export default function HostDashboardPage() {
     };
 
     const result = await dispatch(createListing(payload));
-    if (!result.error) navigate('/');
+    if (!result.error) {
+      setSubmitMessage('Workspace published successfully.');
+      navigate('/');
+    } else {
+      setSubmitMessage(result.payload || 'Unable to publish. Host role required.');
+    }
   };
+
+  if (authUser && !['host', 'admin'].includes(authUser.role)) {
+    return (
+      <section className="glass rounded-3xl p-6 md:p-8">
+        <h1 className="text-2xl font-bold">Host access required</h1>
+        <p className="mt-2 text-slate-600">
+          Your current role is <strong>{authUser.role}</strong>. Only <strong>host</strong> or <strong>admin</strong> accounts can publish workspaces.
+        </p>
+        <p className="mt-3 text-sm text-slate-500">Log in with a host account (for seeded data: testhost@workbnb.dev) and try again.</p>
+      </section>
+    );
+  }
 
   return (
     <section className="glass rounded-3xl p-6 md:p-8">
@@ -56,6 +76,11 @@ export default function HostDashboardPage() {
       <p className="mt-2 text-slate-600">List your workspace with images, flexible pricing, and availability.</p>
 
       <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+        {(error || submitMessage) && (
+          <p className={`rounded-2xl p-3 text-sm ${error ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
+            {error || submitMessage}
+          </p>
+        )}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <label className="text-sm text-slate-600">Workspace title<input className="input" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required /></label>
           <label className="text-sm text-slate-600">City<input className="input" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} required /></label>

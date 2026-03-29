@@ -60,7 +60,16 @@ const listingSlice = createSlice({
       .addCase(fetchListings.fulfilled, (state, action) => { state.loading = false; state.items = action.payload; })
       .addCase(fetchListings.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
       .addCase(fetchListingById.fulfilled, (state, action) => { state.selected = action.payload; })
-      .addCase(createListing.fulfilled, (state, action) => { state.items.unshift(action.payload); });
+      .addCase(createListing.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(createListing.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.items.unshift(action.payload);
+      })
+      .addCase(createListing.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to create listing';
+      });
   }
 });
 
