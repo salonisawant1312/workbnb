@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axiosInstance from '../api/axios';
+import { api as axiosInstance } from '../api/client';
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 
