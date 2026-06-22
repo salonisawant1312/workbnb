@@ -16,7 +16,8 @@ const userSchema = new mongoose.Schema(
       ifscCode: String
     },
     razorpayAccountId: String,
-    isRazorpayLinked: { type: Boolean, default: false }
+    isRazorpayLinked: { type: Boolean, default: false },
+    status: { type: String, enum: ['active', 'suspended'], default: 'active' }
   },
   { timestamps: true }
 );

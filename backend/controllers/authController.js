@@ -1,4 +1,4 @@
-﻿const User = require('../models/User');
+const User = require('../models/User');
 const signToken = require('../utils/signToken');
 
 const register = async (req, res) => {
@@ -26,6 +26,10 @@ const login = async (req, res) => {
     const user = await User.findOne({ email }).select('+password');
     if (!user || !(await user.matchPassword(password))) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    if (user.status === 'suspended') {
+      return res.status(403).json({ success: false, message: 'Your account has been suspended' });
     }
 
     const token = signToken(user._id);

@@ -8,6 +8,7 @@ import RegisterPage from './pages/RegisterPage';
 import ListingDetailsPage from './pages/ListingDetailsPage';
 import HostDashboardPage from './pages/HostDashboardPage';
 import BookingHistoryPage from './pages/BookingHistoryPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
 
 const PrivateRoute = ({ children }) => {
   const { token } = useSelector((s) => s.auth);
@@ -126,8 +127,9 @@ function Navbar() {
         <nav className="flex items-center gap-2 text-sm">
           <NavLink className="btn-ghost" to="/">Explore</NavLink>
           {user?.role === 'host' && <NavLink className="btn-ghost" to="/host">Dashboard</NavLink>}
-          {user?.role !== 'host' && token && <NavLink className="btn-ghost" to="/host">Become a Host</NavLink>}
-          {user?.role !== 'host' && <NavLink className="btn-ghost" to="/bookings">Trips</NavLink>}
+          {user?.role === 'admin' && <NavLink className="btn-ghost" to="/admin">Admin Dashboard</NavLink>}
+          {user?.role !== 'host' && user?.role !== 'admin' && token && <NavLink className="btn-ghost" to="/host">Become a Host</NavLink>}
+          {user?.role !== 'host' && user?.role !== 'admin' && <NavLink className="btn-ghost" to="/bookings">Trips</NavLink>}
           {!token && <NavLink className="btn-ghost" to="/login">Login</NavLink>}
           {!token && <Link className="btn-primary" to="/register">Sign up</Link>}
           {token && (
@@ -180,6 +182,7 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/listings/:id" element={<ListingDetailsPage />} />
           <Route path="/host" element={<PrivateRoute><HostDashboardPage /></PrivateRoute>} />
+          <Route path="/admin" element={<PrivateRoute><AdminDashboardPage /></PrivateRoute>} />
           <Route path="/bookings" element={<PrivateRoute><BookingHistoryPage /></PrivateRoute>} />
         </Routes>
       </main>
