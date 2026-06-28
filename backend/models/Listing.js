@@ -1,4 +1,4 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 const listingSchema = new mongoose.Schema(
   {
@@ -21,6 +21,7 @@ const listingSchema = new mongoose.Schema(
     pricePerHour: { type: Number, default: 0 },
     pricePerDay: { type: Number, default: 0 },
     pricePerMonth: { type: Number, default: 0 },
+    area: { type: Number, default: 0 },
     amenities: [{ type: String }],
     images: [{ type: String }],
     rating: { type: Number, default: 0 },

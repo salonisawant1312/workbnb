@@ -21,6 +21,15 @@ export const loginUser = createAsyncThunk('auth/login', async (payload, thunkAPI
   }
 });
 
+export const loginWithOtp = createAsyncThunk('auth/otpLogin', async (payload, thunkAPI) => {
+  try {
+    const { data } = await api.post('/auth/otp-login', payload);
+    return data;
+  } catch (err) {
+    return thunkAPI.rejectWithValue(err.response?.data?.message || 'OTP Login failed');
+  }
+});
+
 export const loadMe = createAsyncThunk('auth/me', async (_, thunkAPI) => {
   try {
     const { data } = await api.get('/auth/me');
@@ -75,6 +84,14 @@ const authSlice = createSlice({
         localStorage.setItem('workbnb_token', action.payload.token);
       })
       .addCase(loginUser.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+      .addCase(loginWithOtp.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(loginWithOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+        localStorage.setItem('workbnb_token', action.payload.token);
+      })
+      .addCase(loginWithOtp.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
       .addCase(loadMe.fulfilled, (state, action) => { state.user = action.payload.user; })
       .addCase(loadMe.rejected, (state) => {
         state.user = null;

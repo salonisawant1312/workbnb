@@ -4,5 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "build": "node scripts/vercel-build.js"
+  },
+  "dependencies": {
+    "firebase": "^12.15.0"
   }
 }

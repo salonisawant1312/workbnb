@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { fetchListingById } from '../features/listings/listingSlice';
@@ -87,15 +87,47 @@ export default function ListingDetailsPage() {
       <div className="grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
         <article className="glass rounded-3xl p-5">
           <h2 className="text-xl font-semibold">About this space</h2>
+
+          {/* Details Row */}
+          <div className="flex flex-wrap gap-2 mb-4 mt-2">
+            <span className="inline-flex items-center rounded-xl bg-slate-50 border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">
+              📐 Area: {selected.area || 150} Sq. Ft.
+            </span>
+            <span className="inline-flex items-center rounded-xl bg-slate-50 border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">
+              👥 Capacity: {selected.capacity || 4} Professionals
+            </span>
+            <span className="inline-flex items-center rounded-xl bg-slate-50 border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">
+              🏢 Type: {selected.workspaceType}
+            </span>
+          </div>
+
           <p className="mt-2 text-slate-700">{selected.description}</p>
 
-          <h3 className="mt-6 text-lg font-semibold">Amenities</h3>
+          <h3 className="mt-6 text-lg font-semibold">Amenities & Facilities</h3>
           <div className="mt-3 grid grid-cols-2 gap-3">
-            {amenities.map((amenity) => (
-              <div key={amenity.key} className="rounded-2xl border border-slate-200 bg-white p-3 text-sm">
-                <span className="mr-2">{amenity.icon}</span>{amenity.key}
-              </div>
-            ))}
+            {selected.amenities && selected.amenities.map((item) => {
+              const amenityIcons = {
+                wifi: '📶',
+                ac: '❄️',
+                parking: '🅿️',
+                coffee: '☕',
+                projector: '📹',
+                whiteboard: '📋',
+                lounge: '🛋️',
+                'ergonomic chairs': '🪑',
+                monitors: '🖥️'
+              };
+              const icon = amenityIcons[item.toLowerCase().trim()] || '✨';
+              return (
+                <div key={item} className="rounded-2xl border border-slate-200 bg-white p-3 text-sm flex items-center gap-2">
+                  <span className="text-base">{icon}</span>
+                  <span className="font-semibold text-slate-700 capitalize">{item}</span>
+                </div>
+              );
+            })}
+            {(!selected.amenities || selected.amenities.length === 0) && (
+              <p className="text-xs text-slate-400">No specific amenities listed.</p>
+            )}
           </div>
 
           <h3 className="mt-6 text-lg font-semibold">Reviews</h3>

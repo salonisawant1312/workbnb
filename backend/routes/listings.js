@@ -16,8 +16,8 @@ const router = express.Router();
 router.get('/', getAllListings);
 router.get('/my-listings', protect, getHostListings);
 router.get('/:id', getListing);
-router.post('/', protect, authorize('host', 'admin'), upload.array('images', 8), createListing);
-router.post('/:id/images', protect, authorize('host', 'admin'), upload.array('images', 8), addListingImages);
+router.post('/', protect, authorize('guest', 'host', 'admin'), upload.array('images', 8), createListing);
+router.post('/:id/images', protect, authorize('guest', 'host', 'admin'), upload.array('images', 8), addListingImages);
 router.patch('/:id', protect, updateListing);
 router.delete('/:id', protect, deleteListing);
 

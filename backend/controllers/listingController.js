@@ -19,7 +19,7 @@ const normalizeListingPayload = (body) => {
       .filter(Boolean);
   }
 
-  ['capacity', 'pricePerHour', 'pricePerDay', 'pricePerMonth'].forEach((key) => {
+  ['capacity', 'pricePerHour', 'pricePerDay', 'pricePerMonth', 'area'].forEach((key) => {
     if (payload[key] !== undefined) payload[key] = Number(payload[key]);
   });
 

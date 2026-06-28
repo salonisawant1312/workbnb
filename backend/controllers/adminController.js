@@ -2,7 +2,11 @@ const User = require('../models/User');
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+    let filter = {};
+    if (['moderator', 'regulator'].includes(req.user.role)) {
+      filter = { role: { $in: ['guest', 'host'] } };
+    }
+    const users = await User.find(filter).select('-password').sort({ createdAt: -1 });
     return res.status(200).json({ success: true, users });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
@@ -27,6 +31,11 @@ const updateUserStatus = async (req, res) => {
         // allowing admin to suspend themselves is also weird, maybe prevent all admins?
         // Let's just prevent suspending any admin
         return res.status(403).json({ success: false, message: 'Cannot suspend an admin' });
+    }
+
+    // Prevent moderators/regulators from modifying non-hosts/non-guests
+    if (['moderator', 'regulator'].includes(req.user.role) && !['guest', 'host'].includes(user.role)) {
+      return res.status(403).json({ success: false, message: 'Not authorized to regulate this user' });
     }
 
     user.status = status;

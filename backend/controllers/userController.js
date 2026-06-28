@@ -47,8 +47,8 @@ const linkRazorpayAccount = async (req, res) => {
     const user = await User.findById(req.user._id);
     
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-    if (user.role !== 'host' && user.role !== 'admin') {
-      return res.status(403).json({ success: false, message: 'Only hosts can link Razorpay accounts' });
+    if (['moderator', 'regulator'].includes(user.role)) {
+      return res.status(403).json({ success: false, message: 'Staff accounts cannot link payment accounts' });
     }
     
     if (user.isRazorpayLinked) {

@@ -72,7 +72,7 @@ export default function HostDashboardPage() {
   const [formData, setFormData] = useState({
     title: '', description: '', workspaceType: 'desk',
     capacity: 4, pricePerHour: 20, pricePerDay: 95, pricePerMonth: 1200,
-    amenities: 'WiFi,AC,Parking,Coffee', city: ''
+    amenities: 'WiFi,AC,Parking,Coffee', city: '', area: 150
   });
   const [images, setImages] = useState([]);
   const [timeSlot, setTimeSlot] = useState('09:00 - 18:00');
@@ -137,6 +137,7 @@ export default function HostDashboardPage() {
       pricePerHour: Number(formData.pricePerHour),
       pricePerDay: Number(formData.pricePerDay),
       pricePerMonth: Number(formData.pricePerMonth),
+      area: Number(formData.area || 150),
       amenities: formData.amenities.split(',').map((s) => s.trim()).filter(Boolean),
       address: { city: formData.city }, images
     };
@@ -145,7 +146,7 @@ export default function HostDashboardPage() {
       setSubmitMessage('Workspace published successfully!');
       setShowAddForm(false);
       dispatch(fetchHostListings());
-      setFormData({ title: '', description: '', workspaceType: 'desk', capacity: 4, pricePerHour: 20, pricePerDay: 95, pricePerMonth: 1200, amenities: 'WiFi,AC,Parking,Coffee', city: '' });
+      setFormData({ title: '', description: '', workspaceType: 'desk', capacity: 4, pricePerHour: 20, pricePerDay: 95, pricePerMonth: 1200, amenities: 'WiFi,AC,Parking,Coffee', city: '', area: 150 });
       setImages([]);
     } else {
       setSubmitMessage(result.payload || 'Unable to publish.');
@@ -170,11 +171,11 @@ export default function HostDashboardPage() {
   const totalRevenue = payments.filter((p) => p.status === 'succeeded').reduce((s, p) => s + (p.amount || 0), 0);
 
   /* ─── role gate ─── */
-  if (authUser && !['host', 'admin'].includes(authUser.role)) {
+  if (authUser && ['moderator', 'regulator'].includes(authUser.role)) {
     return (
       <section className="glass rounded-3xl p-6 md:p-8">
-        <h1 className="text-2xl font-bold">Host access required</h1>
-        <p className="mt-2 text-slate-600">Your current role is <strong>{authUser.role}</strong>. Only <strong>host</strong> or <strong>admin</strong> accounts can manage workspaces.</p>
+        <h1 className="text-2xl font-bold">Access Denied</h1>
+        <p className="mt-2 text-slate-600">Staff accounts cannot manage workspaces.</p>
       </section>
     );
   }
@@ -255,11 +256,42 @@ export default function HostDashboardPage() {
                       <option value="studio">Studio</option><option value="co-working">Co-working</option>
                     </select>
                   </label>
-                  <label className="text-sm text-slate-600">Capacity<input className="input" type="number" min="1" value={formData.capacity} onChange={(e) => setFormData({ ...formData, capacity: e.target.value })} required /></label>
+                  <label className="text-sm text-slate-600">Capacity (No. of Professionals)<input className="input" type="number" min="1" value={formData.capacity} onChange={(e) => setFormData({ ...formData, capacity: e.target.value })} required /></label>
+                  <label className="text-sm text-slate-600">Area (Sq. Ft.)<input className="input" type="number" min="1" value={formData.area} onChange={(e) => setFormData({ ...formData, area: e.target.value })} required /></label>
                   <label className="text-sm text-slate-600">Price / hour (INR)<input className="input" type="number" min="0" value={formData.pricePerHour} onChange={(e) => setFormData({ ...formData, pricePerHour: e.target.value })} required /></label>
                   <label className="text-sm text-slate-600">Price / day (INR)<input className="input" type="number" min="0" value={formData.pricePerDay} onChange={(e) => setFormData({ ...formData, pricePerDay: e.target.value })} required /></label>
                   <label className="text-sm text-slate-600">Price / month (INR)<input className="input" type="number" min="0" value={formData.pricePerMonth} onChange={(e) => setFormData({ ...formData, pricePerMonth: e.target.value })} required /></label>
-                  <label className="text-sm text-slate-600">Amenities<input className="input" value={formData.amenities} onChange={(e) => setFormData({ ...formData, amenities: e.target.value })} /></label>
+                  
+                  <div className="md:col-span-2">
+                    <label className="text-sm text-slate-600">Amenities & Facilities
+                      <input className="input" placeholder="WiFi, AC, Parking, Coffee, Projector" value={formData.amenities} onChange={(e) => setFormData({ ...formData, amenities: e.target.value })} />
+                    </label>
+                    <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                      <span className="text-[10px] font-bold uppercase text-slate-400 mr-1">Quick Add:</span>
+                      {['WiFi', 'AC', 'Parking', 'Coffee', 'Projector', 'Whiteboard', 'Lounge', 'Ergonomic Chairs', 'Monitors'].map((item) => {
+                        const list = formData.amenities.split(',').map(s => s.trim()).filter(Boolean);
+                        const isAdded = list.includes(item);
+                        return (
+                          <button
+                            key={item}
+                            type="button"
+                            onClick={() => {
+                              const newList = isAdded ? list.filter(s => s !== item) : [...list, item];
+                              setFormData({ ...formData, amenities: newList.join(', ') });
+                            }}
+                            className={`rounded-full px-2.5 py-1 text-[10px] font-bold border transition ${
+                              isAdded
+                                ? 'bg-indigo-50 border-brand-300 text-brand-700'
+                                : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                            }`}
+                          >
+                            {isAdded ? '✓' : '+'} {item}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   <label className="text-sm text-slate-600 md:col-span-2">Description<textarea className="input min-h-24" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} required /></label>
                   <label className="text-sm text-slate-600 md:col-span-2">Upload images<input className="input" type="file" accept="image/*" multiple onChange={(e) => setImages(Array.from(e.target.files || []))} /></label>
                 </div>

@@ -16,7 +16,7 @@ export default function AdminDashboardPage() {
 
   const fetchUsers = async () => {
     try {
-      const { data } = await axiosInstance.get('/api/admin/users');
+      const { data } = await axiosInstance.get('/admin/users');
       setUsers(data.users);
       setLoading(false);
     } catch (err) {
@@ -32,7 +32,7 @@ export default function AdminDashboardPage() {
   const handleToggleStatus = async (userId, currentStatus) => {
     const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
     try {
-      await axiosInstance.put(`/api/admin/users/${userId}/status`, { status: newStatus });
+      await axiosInstance.put(`/admin/users/${userId}/status`, { status: newStatus });
       setUsers(users.map(u => u._id === userId ? { ...u, status: newStatus } : u));
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to update user status');

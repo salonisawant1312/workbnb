@@ -45,12 +45,7 @@ export default function RegisterPage() {
             )}
           </button>
         </label>
-        <label className="mt-2 block text-sm text-slate-600">Role
-          <select className="input" value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })}>
-            <option value="guest">Guest</option>
-            <option value="host">Host</option>
-          </select>
-        </label>
+
 
         <button className="btn-primary mt-4" disabled={loading}>{loading ? 'Creating...' : 'Register'}</button>
       </form>

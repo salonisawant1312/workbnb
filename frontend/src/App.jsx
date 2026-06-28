@@ -9,6 +9,7 @@ import ListingDetailsPage from './pages/ListingDetailsPage';
 import HostDashboardPage from './pages/HostDashboardPage';
 import BookingHistoryPage from './pages/BookingHistoryPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import ModDashboardPage from './pages/ModDashboardPage';
 
 const PrivateRoute = ({ children }) => {
   const { token } = useSelector((s) => s.auth);
@@ -126,10 +127,19 @@ function Navbar() {
 
         <nav className="flex items-center gap-2 text-sm">
           <NavLink className="btn-ghost" to="/">Explore</NavLink>
-          {user?.role === 'host' && <NavLink className="btn-ghost" to="/host">Dashboard</NavLink>}
           {user?.role === 'admin' && <NavLink className="btn-ghost" to="/admin">Admin Dashboard</NavLink>}
-          {user?.role !== 'host' && user?.role !== 'admin' && token && <NavLink className="btn-ghost" to="/host">Become a Host</NavLink>}
-          {user?.role !== 'host' && user?.role !== 'admin' && <NavLink className="btn-ghost" to="/bookings">Trips</NavLink>}
+          {['moderator', 'regulator'].includes(user?.role) && (
+            <NavLink className="btn-ghost" to={`/${user.role}`}>
+              {user.role === 'regulator' ? 'Regulator Dashboard' : 'Mod Dashboard'}
+            </NavLink>
+          )}
+          {token && !['admin', 'moderator', 'regulator'].includes(user?.role) && (
+            <>
+              <NavLink className="btn-ghost" to="/host">Host Dashboard</NavLink>
+              <NavLink className="btn-ghost" to="/bookings">Trips</NavLink>
+            </>
+          )}
+          {!token && <NavLink className="btn-ghost" to="/bookings">Trips</NavLink>}
           {!token && <NavLink className="btn-ghost" to="/login">Login</NavLink>}
           {!token && <Link className="btn-primary" to="/register">Sign up</Link>}
           {token && (
@@ -140,7 +150,7 @@ function Navbar() {
                 if (location.pathname !== '/') navigate('/');
               }}
             >
-              {user?.name}{user?.role === 'host' ? ' (Host)' : ''}
+              {user?.name}
             </button>
           )}
         </nav>
@@ -183,6 +193,8 @@ export default function App() {
           <Route path="/listings/:id" element={<ListingDetailsPage />} />
           <Route path="/host" element={<PrivateRoute><HostDashboardPage /></PrivateRoute>} />
           <Route path="/admin" element={<PrivateRoute><AdminDashboardPage /></PrivateRoute>} />
+          <Route path="/moderator" element={<PrivateRoute><ModDashboardPage /></PrivateRoute>} />
+          <Route path="/regulator" element={<PrivateRoute><ModDashboardPage /></PrivateRoute>} />
           <Route path="/bookings" element={<PrivateRoute><BookingHistoryPage /></PrivateRoute>} />
         </Routes>
       </main>
