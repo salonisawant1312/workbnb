@@ -222,6 +222,66 @@ export default function ModDashboardPage() {
     (activeTab === 'payments' && paymentsError) ||
     (activeTab === 'reviews' && reviewsError);
 
+  const handleDownloadCSV = () => {
+    if (filteredData.length === 0) return;
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+    let headers = [];
+    let rows = [];
+
+    if (activeTab === 'users') {
+      headers = ['Name', 'Email', 'Role', 'Status'];
+      rows = filteredData.map(u => [u.name, u.email, u.role, u.status || 'active']);
+    } else if (activeTab === 'listings') {
+      headers = ['Title', 'Host Name', 'Host Email', 'Workspace Type', 'Price Per Hour', 'Price Per Day', 'City', 'Status'];
+      rows = filteredData.map(l => [
+        l.title, l.hostId?.name || '', l.hostId?.email || '', l.workspaceType,
+        l.pricePerHour, l.pricePerDay, l.address?.city || '', l.isActive ? 'Active' : 'Inactive'
+      ]);
+    } else if (activeTab === 'bookings') {
+      headers = ['Guest Name', 'Guest Email', 'Workspace', 'Workspace Type', 'Host Name', 'Check-in', 'Check-out', 'Amount', 'Status'];
+      rows = filteredData.map(b => [
+        b.guestId?.name || '', b.guestId?.email || '', b.listingId?.title || '', b.listingId?.workspaceType || '',
+        b.hostId?.name || '', new Date(b.checkInDate).toLocaleDateString(), new Date(b.checkOutDate).toLocaleDateString(),
+        b.totalAmount, b.status
+      ]);
+    } else if (activeTab === 'payments') {
+      headers = ['Payment ID', 'Guest Name', 'Guest Email', 'Workspace', 'Amount', 'Status', 'Date'];
+      rows = filteredData.map(p => [
+        p.razorpayPaymentId || p._id, p.userId?.name || '', p.userId?.email || '', p.bookingId?.listingId?.title || '',
+        (p.amount / 100).toFixed(2), p.status, new Date(p.createdAt).toLocaleString()
+      ]);
+    } else if (activeTab === 'reviews') {
+      headers = ['Workspace', 'Reviewer Name', 'Host Name', 'Rating', 'Comment', 'Date'];
+      rows = filteredData.map(r => [
+        r.listingId?.title || '', r.reviewerId?.name || '', r.hostId?.name || '', r.rating,
+        (r.comment || '').replace(/\n/g, ' '), new Date(r.createdAt || Date.now()).toLocaleDateString()
+      ]);
+    }
+
+    const escapeCell = (cell) => {
+      if (cell === null || cell === undefined) return '""';
+      const str = String(cell);
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    csvContent += headers.map(escapeCell).join(',') + '\n';
+    rows.forEach(row => {
+      csvContent += row.map(escapeCell).join(',') + '\n';
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `workbnb_report_${activeTab}_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -392,6 +452,17 @@ export default function ModDashboardPage() {
               </select>
             </>
           )}
+
+          <button
+            onClick={handleDownloadCSV}
+            disabled={filteredData.length === 0}
+            className="ml-4 flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Download Report (CSV)
+          </button>
         </div>
       </div>
 
