@@ -1,4 +1,4 @@
-﻿require('dotenv').config();
+require('dotenv').config();
 const mongoose = require('mongoose');
 const connectDB = require('../config/db');
 const User = require('../models/User');
@@ -26,9 +26,9 @@ const seedListings = [
     city: 'Bangalore',
     workspaceType: 'co-working',
     capacity: 20,
-    pricePerHour: 12,
-    pricePerDay: 72,
-    pricePerMonth: 1100,
+    pricePerHour: 200,
+    pricePerDay: 1000,
+    pricePerMonth: 15000,
     amenities: ['WiFi', 'AC', 'Parking', 'Coffee']
   },
   {
@@ -37,9 +37,9 @@ const seedListings = [
     city: 'Mumbai',
     workspaceType: 'studio',
     capacity: 6,
-    pricePerHour: 18,
-    pricePerDay: 105,
-    pricePerMonth: 1450,
+    pricePerHour: 500,
+    pricePerDay: 2500,
+    pricePerMonth: 40000,
     amenities: ['WiFi', 'AC', 'Coffee']
   },
   {
@@ -48,9 +48,9 @@ const seedListings = [
     city: 'Pune',
     workspaceType: 'meeting-room',
     capacity: 10,
-    pricePerHour: 22,
-    pricePerDay: 130,
-    pricePerMonth: 1650,
+    pricePerHour: 800,
+    pricePerDay: 5000,
+    pricePerMonth: 80000,
     amenities: ['WiFi', 'AC', 'Parking']
   },
   {
@@ -59,9 +59,9 @@ const seedListings = [
     city: 'Hyderabad',
     workspaceType: 'desk',
     capacity: 12,
-    pricePerHour: 9,
-    pricePerDay: 55,
-    pricePerMonth: 900,
+    pricePerHour: 150,
+    pricePerDay: 700,
+    pricePerMonth: 10000,
     amenities: ['WiFi', 'Coffee']
   },
   {
@@ -70,9 +70,9 @@ const seedListings = [
     city: 'Delhi',
     workspaceType: 'co-working',
     capacity: 30,
-    pricePerHour: 14,
-    pricePerDay: 85,
-    pricePerMonth: 1200,
+    pricePerHour: 300,
+    pricePerDay: 1500,
+    pricePerMonth: 25000,
     amenities: ['WiFi', 'AC', 'Parking', 'Coffee']
   }
 ];

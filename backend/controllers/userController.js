@@ -17,7 +17,16 @@ const updateUserProfile = async (req, res) => {
     if (req.params.id !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({ success: false, message: 'Not allowed' });
     }
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('-password');
+
+    const { name, phone, bio, address, bankDetails } = req.body;
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (phone !== undefined) updateData.phone = phone;
+    if (bio !== undefined) updateData.bio = bio;
+    if (address) updateData.address = address;
+    if (bankDetails) updateData.bankDetails = bankDetails;
+
+    const user = await User.findByIdAndUpdate(req.params.id, updateData, { new: true }).select('-password');
     return res.status(200).json({ success: true, data: user });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });

@@ -10,6 +10,13 @@ const userSchema = new mongoose.Schema(
     avatarUrl: String,
     bio: String,
     phone: String,
+    address: {
+      street: String,
+      city: String,
+      state: String,
+      zip: String,
+      country: String
+    },
     bankDetails: {
       accountName: String,
       accountNumber: String,

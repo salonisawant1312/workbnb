@@ -39,6 +39,15 @@ export const loadMe = createAsyncThunk('auth/me', async (_, thunkAPI) => {
   }
 });
 
+export const updateUserProfile = createAsyncThunk('auth/updateProfile', async ({ id, profileData }, thunkAPI) => {
+  try {
+    const { data } = await api.patch(`/users/${id}`, profileData);
+    return data.data; // returns the updated user object
+  } catch (err) {
+    return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to update profile');
+  }
+});
+
 export const linkRazorpayAccount = createAsyncThunk('auth/linkRazorpay', async (payload, thunkAPI) => {
   try {
     const { data } = await api.post('/users/link-razorpay', payload);
@@ -97,6 +106,9 @@ const authSlice = createSlice({
         state.user = null;
         state.token = null;
         localStorage.removeItem('workbnb_token');
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.user = action.payload;
       })
       .addCase(linkRazorpayAccount.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(linkRazorpayAccount.fulfilled, (state, action) => {

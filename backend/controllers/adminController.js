@@ -1,4 +1,8 @@
 const User = require('../models/User');
+const Listing = require('../models/Listing');
+const Payment = require('../models/Payment');
+const Review = require('../models/Review');
+const Booking = require('../models/Booking');
 
 const getAllUsers = async (req, res) => {
   try {
@@ -47,4 +51,56 @@ const updateUserStatus = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsers, updateUserStatus };
+const getAllListings = async (req, res) => {
+  try {
+    const listings = await Listing.find({}).populate('hostId', 'name email').sort({ createdAt: -1 });
+    return res.status(200).json({ success: true, listings });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getAllPayments = async (req, res) => {
+  try {
+    const payments = await Payment.find({})
+      .populate('userId', 'name email')
+      .populate({
+        path: 'bookingId',
+        populate: { path: 'listingId', select: 'title' }
+      })
+      .sort({ createdAt: -1 });
+    return res.status(200).json({ success: true, payments });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getAllReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find({})
+      .populate('reviewerId', 'name email')
+      .populate('listingId', 'title')
+      .populate('hostId', 'name email')
+      .sort({ createdAt: -1 });
+    return res.status(200).json({ success: true, reviews });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getAllBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find({})
+      .populate('guestId', 'name email')
+      .populate('listingId', 'title workspaceType')
+      .populate('hostId', 'name email')
+      .sort({ createdAt: -1 });
+    return res.status(200).json({ success: true, bookings });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { getAllUsers, updateUserStatus, getAllListings, getAllPayments, getAllReviews, getAllBookings };
+
+

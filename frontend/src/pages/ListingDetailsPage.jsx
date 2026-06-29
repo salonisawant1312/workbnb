@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { fetchListingById } from '../features/listings/listingSlice';
 import { createBooking } from '../features/bookings/bookingSlice';
 import { addReview, fetchListingReviews } from '../features/reviews/reviewSlice';
@@ -142,15 +142,10 @@ export default function ListingDetailsPage() {
           </div>
 
           {token && (
-            <form className="mt-4 space-y-3" onSubmit={handleReview}>
-              <h4 className="font-semibold">Write a review</h4>
-              <input className="input" placeholder="Booking ID" value={reviewData.bookingId} onChange={(e) => setReviewData({ ...reviewData, bookingId: e.target.value })} required />
-              <div className="grid gap-3 sm:grid-cols-[120px_1fr]">
-                <input className="input" type="number" min="1" max="5" value={reviewData.rating} onChange={(e) => setReviewData({ ...reviewData, rating: e.target.value })} required />
-                <input className="input" placeholder="Your feedback" value={reviewData.comment} onChange={(e) => setReviewData({ ...reviewData, comment: e.target.value })} required />
-              </div>
-              <button className="btn-ghost">Submit review</button>
-            </form>
+            <div className="mt-4 rounded-2xl bg-brand-50 p-4 border border-brand-100">
+              <h4 className="font-semibold text-brand-800">Leave a Review</h4>
+              <p className="mt-1 text-sm text-brand-700">You can leave a review for this workspace from your <Link to="/bookings" className="font-bold underline hover:text-brand-900">Trips</Link> page after you have completed your booking.</p>
+            </div>
           )}
         </article>
 

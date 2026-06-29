@@ -10,6 +10,10 @@ import HostDashboardPage from './pages/HostDashboardPage';
 import BookingHistoryPage from './pages/BookingHistoryPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import ModDashboardPage from './pages/ModDashboardPage';
+import AccountPage from './pages/AccountPage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
+import SupportPage from './pages/SupportPage';
 
 const PrivateRoute = ({ children }) => {
   const { token } = useSelector((s) => s.auth);
@@ -126,32 +130,29 @@ function Navbar() {
         </form>
 
         <nav className="flex items-center gap-2 text-sm">
-          <NavLink className="btn-ghost" to="/">Explore</NavLink>
-          {user?.role === 'admin' && <NavLink className="btn-ghost" to="/admin">Admin Dashboard</NavLink>}
+          <NavLink className={({ isActive }) => isActive ? "btn-ghost text-blue-600 bg-blue-50 font-semibold" : "btn-ghost"} to="/">Explore</NavLink>
+          {user?.role === 'admin' && <NavLink className={({ isActive }) => isActive ? "btn-ghost text-blue-600 bg-blue-50 font-semibold" : "btn-ghost"} to="/admin">Admin Dashboard</NavLink>}
           {['moderator', 'regulator'].includes(user?.role) && (
-            <NavLink className="btn-ghost" to={`/${user.role}`}>
+            <NavLink className={({ isActive }) => isActive ? "btn-ghost text-blue-600 bg-blue-50 font-semibold" : "btn-ghost"} to={`/${user.role}`}>
               {user.role === 'regulator' ? 'Regulator Dashboard' : 'Mod Dashboard'}
             </NavLink>
           )}
           {token && !['admin', 'moderator', 'regulator'].includes(user?.role) && (
             <>
-              <NavLink className="btn-ghost" to="/host">Host Dashboard</NavLink>
-              <NavLink className="btn-ghost" to="/bookings">Trips</NavLink>
+              <NavLink className={({ isActive }) => isActive ? "btn-ghost text-blue-600 bg-blue-50 font-semibold" : "btn-ghost"} to="/host">Host Dashboard</NavLink>
+              <NavLink className={({ isActive }) => isActive ? "btn-ghost text-blue-600 bg-blue-50 font-semibold" : "btn-ghost"} to="/bookings">Trips</NavLink>
             </>
           )}
-          {!token && <NavLink className="btn-ghost" to="/bookings">Trips</NavLink>}
-          {!token && <NavLink className="btn-ghost" to="/login">Login</NavLink>}
+          {!token && <NavLink className={({ isActive }) => isActive ? "btn-ghost text-blue-600 bg-blue-50 font-semibold" : "btn-ghost"} to="/bookings">Trips</NavLink>}
+          {!token && <NavLink className={({ isActive }) => isActive ? "btn-ghost text-blue-600 bg-blue-50 font-semibold" : "btn-ghost"} to="/login">Login</NavLink>}
           {!token && <Link className="btn-primary" to="/register">Sign up</Link>}
           {token && (
-            <button
-              className="btn-primary"
-              onClick={() => {
-                dispatch(logout());
-                if (location.pathname !== '/') navigate('/');
-              }}
+            <NavLink
+              to="/account"
+              className={({ isActive }) => isActive ? "btn-primary ring-2 ring-blue-500 ring-offset-2" : "btn-primary"}
             >
               {user?.name}
-            </button>
+            </NavLink>
           )}
         </nav>
       </div>
@@ -165,9 +166,9 @@ function Footer() {
       <div className="mx-auto flex w-[min(1200px,92vw)] flex-col gap-3 py-6 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
         <p>© {new Date().getFullYear()} WORKBNB</p>
         <div className="flex gap-4">
-          <Link to="/">Privacy</Link>
-          <Link to="/">Terms</Link>
-          <Link to="/">Support</Link>
+          <Link to="/privacy" className="hover:text-brand-600">Privacy</Link>
+          <Link to="/terms" className="hover:text-brand-600">Terms</Link>
+          <Link to="/support" className="hover:text-brand-600">Support</Link>
         </div>
       </div>
     </footer>
@@ -196,6 +197,10 @@ export default function App() {
           <Route path="/moderator" element={<PrivateRoute><ModDashboardPage /></PrivateRoute>} />
           <Route path="/regulator" element={<PrivateRoute><ModDashboardPage /></PrivateRoute>} />
           <Route path="/bookings" element={<PrivateRoute><BookingHistoryPage /></PrivateRoute>} />
+          <Route path="/account" element={<PrivateRoute><AccountPage /></PrivateRoute>} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/support" element={<SupportPage />} />
         </Routes>
       </main>
       <Footer />

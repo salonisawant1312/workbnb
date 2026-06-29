@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchBookings, createRazorpayOrder, verifyRazorpayPayment } from '../features/bookings/bookingSlice';
+import { addReview } from '../features/reviews/reviewSlice';
 
 const bookingImage = 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80';
 
@@ -8,6 +9,8 @@ export default function BookingHistoryPage() {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((s) => s.bookings);
   const [message, setMessage] = useState('');
+  const [reviewForm, setReviewForm] = useState(null);
+  const [reviewData, setReviewData] = useState({ rating: 5, comment: '' });
 
   useEffect(() => {
     dispatch(fetchBookings());
@@ -66,6 +69,19 @@ export default function BookingHistoryPage() {
     rzp.open();
   };
 
+  const handleReviewSubmit = async (e, bookingId) => {
+    e.preventDefault();
+    setMessage('');
+    const res = await dispatch(addReview({ bookingId, ...reviewData }));
+    if (!res.error) {
+      setMessage('Review submitted successfully!');
+      setReviewForm(null);
+      setReviewData({ rating: 5, comment: '' });
+    } else {
+      setMessage(res.payload || 'Failed to submit review');
+    }
+  };
+
   return (
     <section className="space-y-4">
       <h2 className="text-3xl font-bold">Your bookings</h2>
@@ -84,9 +100,28 @@ export default function BookingHistoryPage() {
               <p className="text-sm">Payment: <span className="font-medium">{booking.paymentStatus}</span></p>
               <p className="text-sm">Total: <span className="font-semibold">₹{booking.totalAmount} INR</span></p>
               {booking.paymentStatus !== 'paid' && (
-                <button className="btn-primary" disabled={loading} onClick={() => handlePayNow(booking._id)}>
+                <button className="btn-primary mt-2" disabled={loading} onClick={() => handlePayNow(booking._id)}>
                   {loading ? 'Processing...' : 'Pay now'}
                 </button>
+              )}
+              {(booking.status === 'completed' || (booking.status === 'confirmed' && new Date(booking.checkOutDate) < new Date())) && (
+                <div className="mt-2 border-t border-slate-100 pt-2">
+                  {reviewForm !== booking._id ? (
+                    <button className="btn-ghost text-xs" onClick={() => setReviewForm(booking._id)}>Leave a Review</button>
+                  ) : (
+                    <form className="space-y-2" onSubmit={(e) => handleReviewSubmit(e, booking._id)}>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-semibold text-slate-500">Rating (1-5):</label>
+                        <input className="input py-1 text-sm max-w-[80px]" type="number" min="1" max="5" value={reviewData.rating} onChange={(e) => setReviewData({ ...reviewData, rating: Number(e.target.value) })} required />
+                      </div>
+                      <textarea className="input py-2 text-sm resize-none" rows="2" placeholder="How was your experience?" value={reviewData.comment} onChange={(e) => setReviewData({ ...reviewData, comment: e.target.value })} required></textarea>
+                      <div className="flex gap-2">
+                        <button type="submit" className="btn-primary text-xs py-1 px-3">Submit</button>
+                        <button type="button" className="btn-ghost text-xs py-1 px-3" onClick={() => setReviewForm(null)}>Cancel</button>
+                      </div>
+                    </form>
+                  )}
+                </div>
               )}
             </div>
           </article>

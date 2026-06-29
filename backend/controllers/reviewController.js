@@ -1,4 +1,4 @@
-﻿const Review = require('../models/Review');
+const Review = require('../models/Review');
 const Booking = require('../models/Booking');
 const Listing = require('../models/Listing');
 
@@ -16,6 +16,14 @@ const createReview = async (req, res) => {
     if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
     if (booking.guestId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ success: false, message: 'Not allowed' });
+    }
+
+    const now = new Date();
+    const isCompleted = booking.status === 'completed';
+    const isConfirmedAndPast = booking.status === 'confirmed' && new Date(booking.checkOutDate) < now;
+    
+    if (!isCompleted && !isConfirmedAndPast) {
+      return res.status(400).json({ success: false, message: 'You can only review a workspace after your booking is completed' });
     }
 
     const review = await Review.create({
