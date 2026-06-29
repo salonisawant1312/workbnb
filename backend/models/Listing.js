@@ -26,7 +26,12 @@ const listingSchema = new mongoose.Schema(
     images: [{ type: String }],
     rating: { type: Number, default: 0 },
     totalReviews: { type: Number, default: 0 },
-    isActive: { type: Boolean, default: true }
+    isActive: { type: Boolean, default: true },
+    availabilityStatus: {
+      type: String,
+      enum: ['available', 'unavailable', 'booked'],
+      default: 'available'
+    }
   },
   { timestamps: true }
 );

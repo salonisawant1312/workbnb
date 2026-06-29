@@ -138,4 +138,24 @@ const deleteListing = async (req, res) => {
   }
 };
 
-module.exports = { getAllListings, getHostListings, getListing, createListing, addListingImages, updateListing, deleteListing };
+const updateListingStatus = async (req, res) => {
+  try {
+    const { availabilityStatus } = req.body;
+    const allowed = ['available', 'unavailable', 'booked'];
+    if (!allowed.includes(availabilityStatus)) {
+      return res.status(400).json({ success: false, message: `Status must be one of: ${allowed.join(', ')}` });
+    }
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) return res.status(404).json({ success: false, message: 'Listing not found' });
+    if (listing.hostId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Not allowed' });
+    }
+    listing.availabilityStatus = availabilityStatus;
+    await listing.save();
+    res.status(200).json({ success: true, data: listing });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { getAllListings, getHostListings, getListing, createListing, addListingImages, updateListing, updateListingStatus, deleteListing };

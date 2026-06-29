@@ -249,7 +249,7 @@ export default function ModDashboardPage() {
       headers = ['Payment ID', 'Guest Name', 'Guest Email', 'Workspace', 'Amount', 'Status', 'Date'];
       rows = filteredData.map(p => [
         p.razorpayPaymentId || p._id, p.userId?.name || '', p.userId?.email || '', p.bookingId?.listingId?.title || '',
-        (p.amount / 100).toFixed(2), p.status, new Date(p.createdAt).toLocaleString()
+        Number(p.amount).toFixed(2), p.status, new Date(p.createdAt).toLocaleString()
       ]);
     } else if (activeTab === 'reviews') {
       headers = ['Workspace', 'Reviewer Name', 'Host Name', 'Rating', 'Comment', 'Date'];
@@ -693,7 +693,7 @@ export default function ModDashboardPage() {
                       {p.bookingId?.listingId?.title || 'Unknown Room'}
                     </td>
                     <td className="px-6 py-4 font-bold text-slate-900">
-                      ₹{(p.amount / 100).toFixed(2)}
+                      ₹{Number(p.amount).toLocaleString('en-IN')}
                     </td>
                     <td className="px-6 py-4 capitalize text-xs font-semibold text-slate-500">
                       {p.paymentMethod || 'Razorpay'}

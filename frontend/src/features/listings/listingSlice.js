@@ -54,6 +54,15 @@ export const createListing = createAsyncThunk('listings/create', async (payload,
   }
 });
 
+export const updateListingStatus = createAsyncThunk('listings/updateStatus', async ({ id, availabilityStatus }, thunkAPI) => {
+  try {
+    const { data } = await api.patch(`/listings/${id}/status`, { availabilityStatus });
+    return data.data;
+  } catch (err) {
+    return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to update status');
+  }
+});
+
 const listingSlice = createSlice({
   name: 'listings',
   initialState: {
@@ -81,6 +90,11 @@ const listingSlice = createSlice({
       .addCase(createListing.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to create listing';
+      })
+      .addCase(updateListingStatus.fulfilled, (state, action) => {
+        const updated = action.payload;
+        const idx = state.items.findIndex(l => l._id === updated._id);
+        if (idx !== -1) state.items[idx] = updated;
       });
   }
 });

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createListing, fetchHostListings } from '../features/listings/listingSlice';
+import { createListing, fetchHostListings, updateListingStatus } from '../features/listings/listingSlice';
 import { linkRazorpayAccount } from '../features/auth/authSlice';
 import { api } from '../api/client';
 
@@ -334,25 +334,54 @@ export default function HostDashboardPage() {
           )}
 
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {listings.map((listing) => (
-              <article key={listing._id} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-float">
-                <img src={listing.images?.[0] || 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=600&q=80'} alt={listing.title} className="h-44 w-full object-cover transition duration-300 group-hover:scale-105" />
-                <div className="p-4 space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-bold text-lg leading-tight">{listing.title}</h3>
-                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${listing.isActive !== false ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
-                      {listing.isActive !== false ? 'Active' : 'Draft'}
-                    </span>
+            {listings.map((listing) => {
+              const statusConfig = {
+                available:   { label: 'Available',   dot: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+                unavailable: { label: 'Unavailable', dot: 'bg-slate-400',   badge: 'bg-slate-100 text-slate-500 border-slate-200' },
+                booked:      { label: 'Booked',      dot: 'bg-red-500',     badge: 'bg-red-50 text-red-700 border-red-200' },
+              };
+              const currentStatus = listing.availabilityStatus || 'available';
+              const cfg = statusConfig[currentStatus];
+              return (
+                <article key={listing._id} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-float">
+                  <img src={listing.images?.[0] || 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=600&q=80'} alt={listing.title} className="h-44 w-full object-cover transition duration-300 group-hover:scale-105" />
+                  <div className="p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-bold text-lg leading-tight">{listing.title}</h3>
+                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${listing.isActive !== false ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
+                        {listing.isActive !== false ? 'Active' : 'Draft'}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-500">{listing.address?.city || 'Unknown'} • {listing.workspaceType}</p>
+                    <div className="flex items-center gap-3 text-sm">
+                      <span className="font-semibold">₹{listing.pricePerHour}/hr</span>
+                      <span className="text-slate-300">•</span>
+                      <span className="font-semibold">₹{listing.pricePerDay}/day</span>
+                    </div>
+
+                    {/* Availability Status Control */}
+                    <div className="border-t border-slate-100 pt-3">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Availability Status</p>
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${cfg.badge}`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+                          {cfg.label}
+                        </span>
+                        <select
+                          value={currentStatus}
+                          onChange={(e) => dispatch(updateListingStatus({ id: listing._id, availabilityStatus: e.target.value }))}
+                          className="ml-auto rounded-xl border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 outline-none focus:border-brand-500 transition cursor-pointer"
+                        >
+                          <option value="available">✅ Available</option>
+                          <option value="unavailable">🚫 Unavailable</option>
+                          <option value="booked">📅 Booked</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-slate-500">{listing.address?.city || 'Unknown'} • {listing.workspaceType}</p>
-                  <div className="flex items-center gap-3 text-sm">
-                    <span className="font-semibold">₹{listing.pricePerHour}/hr</span>
-                    <span className="text-slate-300">•</span>
-                    <span className="font-semibold">₹{listing.pricePerDay}/day</span>
-                  </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         </>
       )}
